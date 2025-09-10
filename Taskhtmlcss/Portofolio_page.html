@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Halaman Portofolio</title>
+  </head>
+
+  <body>
+    <div
+      style="
+        display: flex;
+        justify-content: space-between;
+        margin: 50px 0 50px 0;
+        align-items: center;
+      "
+    >
+      <img src="gambar2.jpeg" style="width: 50px" alt="logo" />
+
+      <nav style="display: flex; gap: 15px">
+        <a href="Home_Page.html" class="nav-btn">Home Page</a>
+        <a href="Map_Page.html" class="nav-btn">Map Page</a>
+        <a href="Portofolio_page.html" class="nav-btn">Portfolio Page</a>
+      </nav>
+    </div>
+
+    <style>
+      .nav-btn {
+        text-decoration: none;
+        padding: 10px 18px;
+        border-radius: 8px;
+        background-color: #3498db;
+        color: white;
+        font-weight: bold;
+        transition: all 0.3s ease;
+      }
+
+      .nav-btn:hover {
+        background-color: #2980b9;
+        transform: scale(1.05);
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+      }
+
+      .nav-btn:active {
+        background-color: #1f618d;
+        transform: scale(0.98);
+      }
+    </style>
+
+    <h1>Selamat Datang di Portofolio Saya!</h1>
+    <hr />
+
+    <img src="gambar1.png" alt="foto" width="300" height="250" />
+
+    <br />
+    <p>
+      Perkenalkan nama saya Indra, saya merupakan mahasiswa di salah satu kampus
+      top di Jawa Tengah. Saya sedang melaksanakan pendidikan S1 yang sebentar
+      lagi selesai. Saya telah memiliki berbagai pengalaman seperti magang,
+      kepanitiaan dan keorganisasian. Saya juga memiliki beberapa hasil proyek
+      yang saya buat selama kuliah hasil dari praktikum tetapi tidak dapat saya
+      tampilkan. Saya sedang mendalami berbagai macam skill seperti analisa
+      spasial, penggunaan WebGIS, AI, Pasar Uang, dan masih banyak lagi. Saya
+      harap saya dapat menyelesaikan kegiatan Mapid Academy ini dengan baik.
+    </p>
+    <style>
+      p {
+        text-align: justify;
+      }
+    </style>
+
+    <h1>Kritik dan Saran</h1>
+    <hr />
+
+    <form>
+      <label>Nama:</label>
+      <br />
+      <input />
+      <br />
+      <br />
+      <label>Email:</label>
+      <br />
+      <input />
+      <br />
+      <br />
+      <label>Kritik dan Saran</label>
+      <br />
+      <textarea rows="3" cols="30"></textarea>
+      <br />
+      <br />
+      <button>submit</button>
+    </form>
+
+    <h1>Daftar Komentar</h1>
+    <style>
+      table {
+        border-collapse: collapse; /* biar garis tidak dobel */
+        outline: 2px solid black; /* outline di luar tabel */
+      }
+      th,
+      td {
+        border: 1px solid gray; /* garis antar sel */
+        padding: 8px;
+      }
+    </style>
+    <table>
+      <thead>
+        <tr>
+          <th>Nama</th>
+          <th>Email</th>
+          <th>Komentar</th>
+        </tr>
+      </thead>
+    </table>
+  </body>
+</html>

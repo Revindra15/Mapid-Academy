@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Halaman 2 (Map)</title>
+  </head>
+
+  <body>
+    <div
+      style="
+        display: flex;
+        justify-content: space-between;
+        margin: 50px 0 50px 0;
+        align-items: center;
+      "
+    >
+      <img src="gambar2.jpeg" style="width: 50px" alt="logo" />
+
+      <nav style="display: flex; gap: 15px">
+        <a href="Home_Page.html" class="nav-btn">Home Page</a>
+        <a href="Map_Page.html" class="nav-btn">Map Page</a>
+        <a href="Portofolio_page.html" class="nav-btn">Portfolio Page</a>
+      </nav>
+    </div>
+
+    <style>
+      .nav-btn {
+        text-decoration: none;
+        padding: 10px 18px;
+        border-radius: 8px;
+        background-color: #3498db;
+        color: white;
+        font-weight: bold;
+        transition: all 0.3s ease;
+      }
+
+      .nav-btn:hover {
+        background-color: #2980b9;
+        transform: scale(1.05);
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+      }
+
+      .nav-btn:active {
+        background-color: #1f618d;
+        transform: scale(0.98);
+      }
+    </style>
+
+    <h2>Peta Satelit (Google Maps)</h2>
+    <iframe
+      src="https://geoportal.menlhk.go.id/portal/apps/webappviewer/index.html?id=2ee8bdda1d714899955fccbe7fdf8468"
+      width="800"
+      height="600"
+      frameborder="0"
+      allowfullscreen
+    >
+    </iframe>
+  </body>
+</html>
