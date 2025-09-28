@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Form Kritik & Saran</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        margin: 30px;
+        background: #f9f9f9;
+      }
+      h2 {
+        color: #333;
+      }
+      form {
+        background: #fff;
+        padding: 20px;
+        border-radius: 8px;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+        max-width: 400px;
+        margin-bottom: 30px;
+      }
+      label {
+        display: block;
+        margin-bottom: 5px;
+        font-weight: bold;
+      }
+      input,
+      textarea,
+      button {
+        width: 100%;
+        padding: 8px;
+        margin-bottom: 15px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        font-size: 14px;
+      }
+      button {
+        background: #007bff;
+        color: white;
+        border: none;
+        cursor: pointer;
+        font-weight: bold;
+      }
+      button:hover {
+        background: #0056b3;
+      }
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        background: #fff;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+      }
+      th,
+      td {
+        border: 1px solid #ddd;
+        padding: 10px;
+        text-align: left;
+      }
+      th {
+        background: #007bff;
+        color: white;
+      }
+    </style>
+  </head>
+  <body>
+    <h2>Form Kritik & Saran</h2>
+
+    <form onsubmit="onSubmit(event)">
+      <label for="nama">Nama</label>
+      <input
+        id="nama"
+        name="nama"
+        type="text"
+        placeholder="Masukkan nama Anda"
+        required
+      />
+
+      <label for="email">Email</label>
+      <input
+        id="email"
+        name="email"
+        type="email"
+        placeholder="Masukkan email Anda"
+        required
+      />
+
+      <label for="kritik">Kritik dan Saran</label>
+      <textarea
+        id="kritik"
+        name="kritik"
+        placeholder="Masukkan kritik dan saran Anda"
+        rows="4"
+        required
+      ></textarea>
+
+      <button type="submit">Kirim</button>
+    </form>
+
+    <h2>Daftar Kritik & Saran</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Nama</th>
+          <th>Email</th>
+          <th>Kritik dan Saran</th>
+        </tr>
+      </thead>
+      <tbody id="table-body"></tbody>
+    </table>
+
+    <script>
+      function onSubmit(event) {
+        event.preventDefault(); // biar tidak reload halaman
+        const name = document.getElementById("nama").value.trim();
+        const email = document.getElementById("email").value.trim();
+        const kritik_saran = document.getElementById("kritik").value.trim();
+
+        if (name && email && kritik_saran) {
+          postSaran(name, email, kritik_saran);
+          document.querySelector("form").reset(); // reset form setelah submit
+        } else {
+          alert("Semua data wajib diisi!");
+        }
+      }
+
+      function postSaran(name, email, kritik_saran) {
+        fetch("https://68d3b503214be68f8c66e4b7.mockapi.io/webgis/saran/v1", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ name, email, kritik_saran }),
+        })
+          .then((response) => response.json())
+          .then(() => {
+            getData();
+          })
+          .catch((error) => console.error(error));
+      }
+
+      function getData() {
+        const tableBody = document.getElementById("table-body");
+        tableBody.innerHTML = "";
+
+        fetch("https://68d3b503214be68f8c66e4b7.mockapi.io/webgis/saran/v1", {
+          method: "GET",
+          headers: { "Content-Type": "application/json" },
+        })
+          .then((response) => response.json())
+          .then((data) => {
+            data.forEach((item) => {
+              const row = document.createElement("tr");
+              row.innerHTML = `
+              <td>${item.name}</td>
+              <td>${item.email}</td>
+              <td>${item.kritik_saran}</td>
+            `;
+              tableBody.appendChild(row);
+            });
+          })
+          .catch((error) => console.error(error));
+      }
+
+      getData();
+    </script>
+  </body>
+</html>
