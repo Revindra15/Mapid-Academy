@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Heatmap</title>
+    <!-- CDN MAPLIBRE GL JS -->
+    <script src="https://unpkg.com/maplibre-gl@^5.7.3/dist/maplibre-gl.js"></script>
+    <link
+      href="https://unpkg.com/maplibre-gl@^5.7.3/dist/maplibre-gl.css"
+      rel="stylesheet"
+    />
+    <!-- CDN TAILWIND CSS -->
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+  </head>
+  <body>
+    <div id="map" class="w-full h-screen"></div>
+
+    <script>
+      const MAP_SERVICE_KEY = "68da7e7d06823ed3f510cc48";
+      const DEFAULT_THEME = "street-new-generation";
+
+      const map = new maplibregl.Map({
+        style: `https://basemap.mapid.io/styles/${DEFAULT_THEME}/style.json?key=${MAP_SERVICE_KEY}`,
+        center: [107.609, -6.914],
+        zoom: 0, // 0 - 22 level
+        pitch: 0,
+        bearing: 0,
+        container: "map",
+        canvasContextAttributes: { antialias: true },
+        attributionControl: true,
+        hash: true,
+      });
+
+      const geojsonHeatmap = {
+        type: "FeatureCollection",
+        features: [
+          {
+            type: "Feature",
+            properties: { value: 1 },
+            geometry: { type: "Point", coordinates: [107.609, -6.914] },
+          },
+          {
+            type: "Feature",
+            properties: { value: 5 },
+            geometry: { type: "Point", coordinates: [107.613, -6.92] },
+          },
+          {
+            type: "Feature",
+            properties: { value: 2 },
+            geometry: { type: "Point", coordinates: [107.62, -6.92] },
+          },
+          {
+            type: "Feature",
+            properties: { value: 3 },
+            geometry: { type: "Point", coordinates: [107.631, -6.921] },
+          },
+          {
+            type: "Feature",
+            properties: { value: 8 },
+            geometry: { type: "Point", coordinates: [107.64, -6.93] },
+          },
+          {
+            type: "Feature",
+            properties: { value: 10 },
+            geometry: { type: "Point", coordinates: [107.65, -6.94] },
+          },
+          {
+            type: "Feature",
+            properties: { value: 6 },
+            geometry: { type: "Point", coordinates: [107.66, -6.95] },
+          },
+          {
+            type: "Feature",
+            properties: { value: 4 },
+            geometry: { type: "Point", coordinates: [107.67, -6.96] },
+          },
+          {
+            type: "Feature",
+            properties: { value: 7 },
+            geometry: { type: "Point", coordinates: [107.68, -6.97] },
+          },
+          {
+            type: "Feature",
+            properties: { value: 9 },
+            geometry: { type: "Point", coordinates: [107.69, -6.98] },
+          },
+        ],
+      };
+      map.on("load", function () {
+        map.addSource("heatmap", {
+          type: "geojson",
+          data: geojsonHeatmap,
+        });
+
+        map.addLayer({
+          id: "layer-heatmap",
+          type: "heatmap",
+          source: "heatmap",
+          maxzoom: 15,
+          paint: {
+            "heatmap-weight": [
+              "interpolate",
+              ["linear"],
+              ["get", "value"],
+              0,
+              0,
+              10,
+              1,
+            ],
+            "heatmap-intensity": [
+              "interpolate",
+              ["linear"],
+              ["zoom"],
+              0,
+              0.6,
+              15,
+              2,
+            ],
+            "heatmap-color": [
+              "interpolate",
+              ["linear"],
+              ["heatmap-density"],
+              0,
+              "rgba(0,0,255,0)",
+              0.1,
+              "blue",
+              0.3,
+              "cyan",
+              0.5,
+              "lime",
+              0.7,
+              "yellow",
+              1,
+              "red",
+            ],
+            "heatmap-radius": [
+              "interpolate",
+              ["linear"],
+              ["zoom"],
+              0,
+              2,
+              9,
+              20,
+              15,
+              60,
+            ],
+            "heatmap-opacity": [
+              "interpolate",
+              ["linear"],
+              ["zoom"],
+              8,
+              1,
+              14,
+              0.3,
+            ],
+          },
+        });
+
+        map.addLayer({
+          id: "layer-points",
+          type: "circle",
+          source: "heatmap",
+          minzoom: 10,
+          paint: {
+            "circle-radius": [
+              "interpolate",
+              ["linear"],
+              ["zoom"],
+              10,
+              3,
+              16,
+              10,
+            ],
+            "circle-color": [
+              "interpolate",
+              ["linear"],
+              ["get", "value"],
+              0,
+              "#9bbcf7",
+              3,
+              "#74d680",
+              6,
+              "#ffd166",
+              10,
+              "#ef476f",
+            ],
+            "circle-stroke-color": "#ffffff",
+            "circle-stroke-width": 1,
+            "circle-opacity": 0.9,
+          },
+        });
+      });
+    </script>
+  </body>
+</html>

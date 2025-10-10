@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Warmup</title>
+    <!-- CDN MAPLIBRE GL JS -->
+    <script src="https://unpkg.com/maplibre-gl@^5.7.3/dist/maplibre-gl.js"></script>
+    <link
+      href="https://unpkg.com/maplibre-gl@^5.7.3/dist/maplibre-gl.css"
+      rel="stylesheet"
+    />
+    <!-- CDN TAILWIND CSS -->
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+  </head>
+  <body>
+    <div id="map" class="w-full h-screen"></div>
+
+    <script>
+      const MAP_SERVICE_KEY = "68da7e7d06823ed3f510cc48";
+      const DEFAULT_THEME = "street-new-generation";
+
+      const map = new maplibregl.Map({
+        style: `https://basemap.mapid.io/styles/${DEFAULT_THEME}/style.json?key=${MAP_SERVICE_KEY}`,
+        center: [106.8271607034024, -6.17537418011058],
+        zoom: 12, // 0 - 22 level
+        pitch: 0,
+        bearing: 0,
+        container: "map",
+        canvasContextAttributes: { antialias: true },
+        attributionControl: true,
+      });
+
+      map.on("load", function () {
+        map.addSource("polygon-bandung", {
+          type: "geojson",
+          data: "https://geoserver.mapid.io/layers_new/get_layer?api_key=d331d922be454fb9967b250b9264bcf4&layer_id=68da8d0232f5e9f00e292976&project_id=68da34c21590317aba2a524c",
+        });
+
+        map.addLayer(
+          {
+            id: "polygon-layer-bandung",
+            type: "fill",
+            source: "polygon-bandung",
+            paint: {
+              "fill-color": "gray",
+              "fill-opacity": 0.7,
+            },
+          },
+          "place_other"
+        );
+      });
+    </script>
+  </body>
+</html>

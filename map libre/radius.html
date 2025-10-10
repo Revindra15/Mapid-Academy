@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Radius</title>
+    <!-- CDN MAPLIBRE GL JS -->
+    <script src="https://unpkg.com/maplibre-gl@^5.7.3/dist/maplibre-gl.js"></script>
+    <link
+      href="https://unpkg.com/maplibre-gl@^5.7.3/dist/maplibre-gl.css"
+      rel="stylesheet"
+    />
+    <!-- CDN TAILWIND CSS -->
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <!-- CDN TURF JS -->
+    <script src="https://cdn.jsdelivr.net/npm/@turf/turf@7/turf.min.js"></script>
+  </head>
+  <body>
+    <div id="map" class="w-full h-screen"></div>
+
+    <script>
+      const MAP_SERVICE_KEY = "68da7e7d06823ed3f510cc48";
+      const DEFAULT_THEME = "street-new-generation";
+
+      const map = new maplibregl.Map({
+        style: `https://basemap.mapid.io/styles/${DEFAULT_THEME}/style.json?key=${MAP_SERVICE_KEY}`,
+        center: [107.609, -6.914],
+        zoom: 12, // 0 - 22 level
+        pitch: 0,
+        bearing: 0,
+        container: "map",
+        canvasContextAttributes: { antialias: true },
+        attributionControl: true,
+        hash: true,
+      });
+
+      map.on("load", function () {
+        map.addSource("point-centroid", {
+          type: "geojson",
+          data: {
+            type: "FeatureCollection",
+            features: [
+              {
+                type: "Feature",
+                properties: {},
+                geometry: {
+                  type: "Point",
+                  coordinates: [107.609, -6.914],
+                },
+              },
+            ],
+          },
+        });
+
+        map.addLayer({
+          id: "point-layer",
+          type: "circle",
+          source: "point-centroid",
+          paint: {
+            "circle-radius": 10,
+            "circle-color": "#000",
+          },
+        });
+
+        map.on("click", "point-layer", function (e) {
+          console.log(e);
+          const lat = e.lngLat.lat; // latitude
+          const lng = e.lngLat.lng; // longitude
+
+          const radius = turf.buffer(
+            {
+              type: "Feature",
+              properties: {},
+              geometry: {
+                type: "Point",
+                coordinates: [lng, lat],
+              },
+            },
+            10,
+            { units: "kilometers", steps: 64 }
+          );
+
+          map.addSource("polygon-radius", {
+            type: "geojson",
+            data: radius,
+          });
+
+          map.addLayer(
+            {
+              id: "polygon-layer-radius",
+              type: "fill",
+              source: "polygon-radius",
+              paint: {
+                "fill-color": "#ff0000",
+                "fill-opacity": 0.5,
+              },
+            },
+            "place_other"
+          );
+        });
+
+        // const radius = turf.buffer(
+        //   {
+        //     type: "Feature",
+        //     properties: {},
+        //     geometry: {
+        //       type: "Point",
+        //       coordinates: [107.609, -6.914],
+        //     },
+        //   },
+        //   10,
+        //   { units: "kilometers", steps: 64 }
+        // );
+
+        // map.addSource("polygon-radius", {
+        //   type: "geojson",
+        //   data: radius,
+        // });
+
+        // map.addLayer({
+        //   id: "polygon-layer-radius",
+        //   type: "fill",
+        //   source: "polygon-radius",
+        //   paint: {
+        //     "fill-color": "#ff0000",
+        //     "fill-opacity": 0.5,
+        //   },
+        // }, "place_other");
+      });
+    </script>
+  </body>
+</html>
