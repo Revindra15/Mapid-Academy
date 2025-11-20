@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>WebGIS</title>
+
+    <!-- MapLibre -->
+    <script src="https://unpkg.com/maplibre-gl@2.4.0/dist/maplibre-gl.js"></script>
+    <link
+      href="https://unpkg.com/maplibre-gl@2.4.0/dist/maplibre-gl.css"
+      rel="stylesheet"
+    />
+
+    <!-- Tailwind -->
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+
+    <style>
+      .zoom-control {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        display: flex;
+        flex-direction: column;
+        z-index: 10;
+      }
+      .zoom-btn {
+        background: white;
+        border: 1px solid #ccc;
+        padding: 8px 12px;
+        cursor: pointer;
+        font-size: 18px;
+        font-weight: bold;
+      }
+      .toggle-btn {
+        position: absolute;
+        right: 10px;
+        background: white;
+        border: 1px solid #ccc;
+        padding: 8px 12px;
+        cursor: pointer;
+        font-size: 14px;
+        border-radius: 6px;
+        z-index: 10;
+        width: 200px;
+        text-align: center;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div id="map" class="w-full h-screen"></div>
+
+    <!-- Zoom -->
+    <div class="zoom-control">
+      <div id="zoom-in" class="zoom-btn">+</div>
+      <div id="zoom-out" class="zoom-btn">−</div>
+    </div>
+
+    <!-- Toggles -->
+    <button id="toggle-heatmap" class="toggle-btn" style="top: 120px">
+      Show Heatmap
+    </button>
+    <button id="toggle-spklu" class="toggle-btn" style="top: 170px">
+      Hide SPKLU Layer
+    </button>
+    <button id="toggle-sosio" class="toggle-btn" style="top: 220px">
+      Hide Sosio-Economic Layer
+    </button>
+
+    <script>
+      const map = new maplibregl.Map({
+        style:
+          "https://basemap.mapid.io/styles/street-2d-building/style.json?key=69161096b14895210e7fc26e",
+        center: [110.4228, -6.9903],
+        zoom: 12,
+        container: "map",
+      });
+
+      document.getElementById("zoom-in").onclick = () => map.zoomIn();
+      document.getElementById("zoom-out").onclick = () => map.zoomOut();
+
+      map.addControl(
+        new maplibregl.ScaleControl({ maxWidth: 150, unit: "metric" }),
+        "bottom-left"
+      );
+
+      const apiSPKLU =
+        "https://geoserver.mapid.io/layers_new/get_layer?api_key=541bb676f4ac4405a003c5fe4476d214&layer_id=691c903b6d097daf98700b11&project_id=6919c2ec673fbc3725178596";
+
+      const apiSosio =
+        "https://geoserver.mapid.io/layers_new/get_layer?api_key=541bb676f4ac4405a003c5fe4476d214&layer_id=691dc193bab12d8c773d9e42&project_id=6919c2ec673fbc3725178596";
+
+      map.on("load", () => {
+        // SPKLU ============================================
+        fetch(apiSPKLU)
+          .then((r) => r.json())
+          .then((geojson) => {
+            const filtered = geojson.features.filter((f) => {
+              const tipe3 = f.properties?.TIPE_3;
+              return (
+                tipe3 &&
+                tipe3.toUpperCase() === "ELECTRIC VEHICLE CHARGING STATION"
+              );
+            });
+
+            map.addSource("ev", {
+              type: "geojson",
+              data: { type: "FeatureCollection", features: filtered },
+            });
+
+            map.addLayer({
+              id: "ev_point",
+              type: "circle",
+              source: "ev",
+              paint: {
+                "circle-radius": 8,
+                "circle-color": "#00E676",
+                "circle-stroke-width": 2,
+                "circle-stroke-color": "#004d40",
+              },
+            });
+
+            map.addLayer({
+              id: "ev_label",
+              type: "symbol",
+              source: "ev",
+              layout: {
+                "text-field": ["get", "NAMA"],
+                "text-size": 12,
+                "text-offset": [0, 1.2],
+                "text-anchor": "top",
+              },
+              paint: {
+                "text-color": "#004d40",
+                "text-halo-color": "white",
+                "text-halo-width": 1.5,
+              },
+            });
+
+            map.on("click", "ev_point", (e) => {
+              const p = e.features[0].properties;
+              new maplibregl.Popup()
+                .setLngLat(e.lngLat)
+                .setHTML(
+                  `
+                  <b>SPKLU (EV Charging Station)</b><br>
+                  <b>Nama:</b> ${p.NAMA || "-"} <br>
+                  <b>Alamat:</b> ${p.ALAMAT || "-"} <br>
+                  <b>Tipe:</b> ${p.TIPE_3}
+                `
+                )
+                .addTo(map);
+            });
+
+            // Heatmap
+            map.addLayer({
+              id: "ev_heatmap",
+              type: "heatmap",
+              source: "ev",
+              paint: {
+                "heatmap-weight": 1,
+                "heatmap-intensity": 1,
+                "heatmap-radius": 40,
+                "heatmap-opacity": 0.85,
+              },
+              layout: { visibility: "none" },
+            });
+
+            let heatmapVisible = false;
+            document.getElementById("toggle-heatmap").onclick = () => {
+              heatmapVisible = !heatmapVisible;
+              map.setLayoutProperty(
+                "ev_heatmap",
+                "visibility",
+                heatmapVisible ? "visible" : "none"
+              );
+              document.getElementById("toggle-heatmap").innerText =
+                heatmapVisible ? "Hide Heatmap" : "Show Heatmap";
+            };
+
+            let spkluVisible = true;
+            document.getElementById("toggle-spklu").onclick = () => {
+              spkluVisible = !spkluVisible;
+              map.setLayoutProperty(
+                "ev_point",
+                "visibility",
+                spkluVisible ? "visible" : "none"
+              );
+              map.setLayoutProperty(
+                "ev_label",
+                "visibility",
+                spkluVisible ? "visible" : "none"
+              );
+              document.getElementById("toggle-spklu").innerText = spkluVisible
+                ? "Hide SPKLU Layer"
+                : "Show SPKLU Layer";
+            };
+          });
+
+        // SOCIO ECONOMIC ======================================
+        fetch(apiSosio)
+          .then((r) => r.json())
+          .then((geojson) => {
+            const props = geojson.features[0].properties;
+            const kategori = [
+              "ATAS",
+              "MENENGAH ATAS",
+              "MENENGAH",
+              "MENENGAH BAWAH",
+              "BAWAH",
+            ];
+
+            let targetField = null;
+            for (const key in props) {
+              if (kategori.includes(props[key])) {
+                targetField = key;
+                break;
+              }
+            }
+
+            map.addSource("sosio", { type: "geojson", data: geojson });
+
+            map.addLayer({
+              id: "sosio_layer",
+              type: "fill",
+              source: "sosio",
+              paint: {
+                "fill-color": [
+                  "match",
+                  ["get", targetField],
+                  "ATAS",
+                  "#d32f2f",
+                  "MENENGAH ATAS",
+                  "#ff9800",
+                  "MENENGAH",
+                  "#4caf50",
+                  "MENENGAH BAWAH",
+                  "#8bc34a",
+                  "BAWAH",
+                  "#2196f3",
+                  "#cccccc",
+                ],
+                "fill-opacity": 0.5,
+                "fill-outline-color": "#555",
+              },
+            });
+
+            map.on("click", "sosio_layer", (e) => {
+              const status = e.features[0].properties[targetField];
+
+              new maplibregl.Popup()
+                .setLngLat(e.lngLat)
+                .setHTML(
+                  `<h3>SOCIO-ECONOMIC STATUS</h3>
+                   <b>Status:</b> ${status}`
+                )
+                .addTo(map);
+            });
+
+            let sosioVisible = true;
+            document.getElementById("toggle-sosio").onclick = () => {
+              sosioVisible = !sosioVisible;
+              map.setLayoutProperty(
+                "sosio_layer",
+                "visibility",
+                sosioVisible ? "visible" : "none"
+              );
+              document.getElementById("toggle-sosio").innerText = sosioVisible
+                ? "Hide Sosio-Economic Layer"
+                : "Show Sosio-Economic Layer";
+            };
+          });
+      });
+    </script>
+  </body>
+</html>
